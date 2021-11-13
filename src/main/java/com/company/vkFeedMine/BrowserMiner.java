@@ -1,0 +1,58 @@
+package com.company.vkFeedMine;
+
+import com.company.ConfProperities;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverLogLevel;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class BrowserMiner {
+
+    private final WebDriver webDriver;
+
+    public BrowserMiner(){
+        // Set up browser
+        System.setProperty("webdriver.chrome.driver", ConfProperities.getProperty("chromedriver"));
+        ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.addArguments(ConfProperities.getProperty("chromeoption"));
+        chromeOptions.setLogLevel(ChromeDriverLogLevel.SEVERE);
+        webDriver = new ChromeDriver(chromeOptions);
+    }
+
+    /**
+     *
+     * @return feed column WebElement
+     */
+    public WebElement mine(){
+        openPage();
+        WebElement column = mineColumn();
+        return Objects.requireNonNull(column);
+    }
+
+    private void openPage(){
+        webDriver.get(ConfProperities.getProperty("vkfeedpage"));
+    }
+
+    private void closeBrowser(){
+        webDriver.close();
+    }
+
+    private WebElement mineColumn(){
+        List<WebElement> webElements = webDriver.findElements(By.id("feed_rows"));
+        for (WebElement item : webElements)
+        {
+            if (!item.isDisplayed())
+                continue;
+            return item;
+        }
+        return null;
+    }
+
+}

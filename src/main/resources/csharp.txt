@@ -1,0 +1,81 @@
+namespace WpfApp3
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            ChromeOptions chromeOptions = new ChromeOptions();
+            chromeOptions.AddArgument(@"user-data-dir=C:\Users\Satellite\AppData\Local\Google\Chrome\User Data\");
+            ChromeDriver chromeDriver = new ChromeDriver(chromeOptions);
+            chromeDriver.Navigate().GoToUrl("https://vk.com/feed");
+            IWebElement parent = null;
+            List<IWebElement> webElements = chromeDriver.FindElementsById("feed_rows").ToList();
+            foreach (var item in webElements)
+            {
+                if (!item.Displayed)
+                    continue;
+                parent = item;
+                break;
+            }
+            if (parent == null)
+                return;
+            List<IWebElement> webElementsNews = parent.FindElements(By.TagName("div")).ToList();
+            foreach (var item in webElementsNews)
+            {
+                if (!item.Displayed)
+                    continue;
+                if (item.GetAttribute("class") == null)
+                    continue;
+                if (!item.GetAttribute("class").ToString().ToLower().Trim().Equals("feed_row"))
+                    continue;
+
+                List<IWebElement> temp = new List<IWebElement>(item.FindElements(By.TagName("div")));
+
+                // string teststring = temp.GetAttribute("id");
+            }
+
+            /*chromeDriver.Navigate().GoToUrl("https://account.mail.ru/signup?from=main&rf=auth.mail.ru&app_id_mytracker=58519");
+            Thread.Sleep(2000);
+            List<IWebElement> webElements = chromeDriver.FindElementsByTagName("button").ToList();
+            foreach (var item in webElements)
+            {
+                if (!item.Displayed)
+                    continue;
+                if (!item.Text.ToLower().Equals("пропустить"))
+                    continue;
+                item.Click();
+                break;
+            }
+            Thread.Sleep(1000);
+            WorkWithWeb workWithWeb = new WorkWithWeb();
+            workWithWeb.setValueinWeb(chromeDriver, "fname", "Прохор");
+            workWithWeb.setValueinWeb(chromeDriver, "lname", "Колосов");
+            webElements = chromeDriver.FindElementsByTagName("div").ToList();
+            foreach (var item in webElements)
+            {
+                if (!item.Displayed)
+                    continue;
+                if (item.GetAttribute("data-test-id") == null)
+                    continue;
+                if (!item.GetAttribute("data-test-id").ToString().Equals("birth-date__day"))
+                    continue;
+                item.Click();
+                break;
+            }
+
+            String text = chromeDriver.PageSource;
+            int a = 10;
+            workWithWeb.setDate(chromeDriver, "birth-date__day", "22", "2");
+            workWithWeb.setDate(chromeDriver, "birth-date__month", "6", "3");
+            workWithWeb.setDate(chromeDriver, "birth-date__year", "18", "4");*/
+        }
+    }
+}
