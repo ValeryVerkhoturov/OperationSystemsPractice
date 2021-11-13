@@ -14,23 +14,12 @@ import java.util.stream.Stream;
 public class FeedElementsMine {
 
     public List<WebElement> findRows(WebElement column){
-        List<WebElement> feedRows = new ArrayList<>();
-        for (WebElement item : column.findElements(By.tagName("div")))
-        {
-            try{
-                if (!item.isDisplayed())
-                    continue;
-            }
-            catch (StaleElementReferenceException e){
-                continue;
-            }
-            if (Objects.isNull(item.getAttribute("class")))
-                continue;
-            if (!item.getAttribute("class").toLowerCase().trim().equals("feed_row"))
-                continue;
-            feedRows.add(item);
-        }
-        return feedRows;
+        return column.findElements(By.tagName("div"))
+                .stream()
+                .filter(WebElement::isDisplayed)
+                .filter(e -> Objects.nonNull(e.getAttribute("class")))
+                .filter(e -> e.getAttribute("class").toLowerCase().trim().equals("feed_row"))
+                .collect(Collectors.toList());
     }
 
     public void mineFeedRow(WebElement row){
@@ -56,7 +45,7 @@ public class FeedElementsMine {
 
         List<String> pics;
         try {
-            //WebElement wallPics = row.findElement(By.className("page_post_sized_thumbs  clear_fix"));
+            // WebElement wallPics = row.findElement(By.className("page_post_sized_thumbs  clear_fix"));
             pics = row.findElements(By.tagName("a"))
                     .stream()
                     .filter(e -> Objects.nonNull(e.getAttribute("aria-label")))
