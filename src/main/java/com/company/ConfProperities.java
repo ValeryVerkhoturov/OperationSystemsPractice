@@ -14,7 +14,7 @@ import java.util.Properties;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ConfProperities {
 
-    @NonNull FileInputStream fileInputStream;
+    FileInputStream fileInputStream;
 
     Properties properties;
 
