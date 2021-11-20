@@ -3,43 +3,51 @@ package com.company.jsonWork;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import lombok.SneakyThrows;
 import lombok.Value;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 @Value
-public class FileWriteController implements Runnable{
+public class FileReadController implements Runnable{
 
-    // what to write
-    FileModel object;
-
-    // where to write
+    // where to read
     FileType fileType;
 
-    @SneakyThrows
+    // output way
+    BlockingQueue<List<FileModel>> blockingQueue;
+
     @Override
     public void run() {
         switch (fileType){
             case FIRST:
                 synchronized (FileType.FIRST){
-                    writeInFile();
+                    try {
+                        readFile();
+                    } catch (JsonProcessingException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case SECOND:
                 synchronized (FileType.SECOND){
-                    writeInFile();
+                    try {
+                        readFile();
+                    } catch (JsonProcessingException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case THIRD:
                 synchronized (FileType.THIRD){
-                    writeInFile();
+                    try {
+                        readFile();
+                    } catch (JsonProcessingException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             default:
@@ -51,13 +59,9 @@ public class FileWriteController implements Runnable{
         }
     }
 
-    private void writeInFile() throws JsonProcessingException, InterruptedException {
-        BlockingQueue<List<FileModel>> blockingQueue = new ArrayBlockingQueue<>(1, true);
-        FileReadController fileReadController = new FileReadController(fileType, blockingQueue);
-        fileReadController.readFile();
-        List<FileModel> list = blockingQueue.take();
-
+    public void readFile() throws JsonProcessingException, InterruptedException {
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        List<FileModel> list = Arrays.asList(objectMapper.readValue(fileType.getPath(), fileType.getCls()));
+        blockingQueue.put(list);
     }
 }
