@@ -10,7 +10,6 @@ import org.openqa.selenium.WebElement;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class FeedElementsMine {
@@ -18,30 +17,61 @@ public class FeedElementsMine {
     public List<WebElement> findRows(WebElement column){
         return column.findElements(By.tagName("div"))
                 .stream()
-                .filter(WebElement::isDisplayed)
                 .filter(e -> Objects.nonNull(e.getAttribute("class")))
                 .filter(e -> e.getAttribute("class").toLowerCase().trim().equals("feed_row"))
                 .toList();
     }
 
     public void mineFeedRowToFiles(WebElement row){
-        row = row.findElement(By.tagName("div"));
+        saveToFiles(findId(row), findText(row), findUrls(row), findPictureUrl(row));
+    }
 
-        String id = row.getAttribute("id");
-        row = row.findElement(By.tagName("div"));
+    private void saveToFiles(String id, String text, List<String> urls, List<String> picturesUrl){
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        executorService.execute(new FileWriteController(new FileType.First(id, text), FileType.FIRST));
+        executorService.execute(new FileWriteController(new FileType.Second(id, urls), FileType.SECOND));
+        executorService.execute(new FileWriteController(new FileType.Third(id, picturesUrl), FileType.THIRD));
+        executorService.shutdown();
+        new Thread(new ConsoleWriter(executorService)).start();
+    }
+
+    private String findId(WebElement row){
+        return row
+                .findElement(By.tagName("div"))
+                .getAttribute("id");
+    }
+
+    private String findText(WebElement row){
         String text = null;
         try {
-            text = row.findElement(By.className("wall_post_text")).getText().replace("\n", " ");
+            text = row
+                    .findElement(By.tagName("div"))
+                    .findElement(By.tagName("div"))
+                    .findElement(By.className("wall_post_text"))
+                    .getText().replace("\n", " ");
         } catch (org.openqa.selenium.NoSuchElementException ignore){}
+        return text;
+    }
 
+    private List<String> findUrls (WebElement row){
         List<String> urls = null;
         try {
-            WebElement wallPost = row.findElement(By.className("wall_post_text"));
-            urls = wallPost.findElements(By.tagName("a")).stream().map(e -> e.getAttribute("href")).toList();
+            urls = row
+                    .findElement(By.tagName("div"))
+                    .findElement(By.tagName("div"))
+                    .findElement(By.className("wall_post_text"))
+                    .findElements(By.tagName("a"))
+                    .stream()
+                    .map(e -> e.getAttribute("href"))
+                    .toList();
         } catch (org.openqa.selenium.NoSuchElementException ignore){}
         if (Objects.nonNull(urls) && urls.size() == 0)
             urls = null;
+        return urls;
+    }
 
+    private List<String> findPictureUrl(WebElement row){
+        row = row.findElement(By.tagName("div")).findElement(By.tagName("div"));
         List<String> picturesUrl = null;
         try {
             picturesUrl = row.findElements(By.tagName("a"))
@@ -54,28 +84,7 @@ public class FeedElementsMine {
         }
         catch (InvalidSelectorException ignore){}
         if (Objects.nonNull(picturesUrl) && picturesUrl.size() == 0)
-            urls = null;
-
-        saveToFiles(id, text, urls, picturesUrl);
-    }
-
-    private void saveToFiles(String id, String text, List<String> urls, List<String> picturesUrl){
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
-        executorService.execute(new FileWriteController(new FileType.First(id, text), FileType.FIRST));
-        executorService.execute(new FileWriteController(new FileType.Second(id, urls), FileType.SECOND));
-        executorService.execute(new FileWriteController(new FileType.Third(id, picturesUrl), FileType.THIRD));
-        executorService.shutdown();
-        new Thread(new ConsoleWriter(executorService)).start();
-    }
-
-    private List<String> findUrls (WebElement row){
-        List<String> urls = null;
-        try {
-            WebElement wallPost = row.findElement(By.className("wall_post_text"));
-            urls = wallPost.findElements(By.tagName("a")).stream().map(e -> e.getAttribute("href")).toList();
-        } catch (org.openqa.selenium.NoSuchElementException ignore){}
-        if (Objects.nonNull(urls) && urls.size() == 0)
-            urls = null;
-        return urls;
+            picturesUrl = null;
+        return picturesUrl;
     }
 }
