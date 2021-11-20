@@ -1,14 +1,15 @@
 package com.company.vkFeedMine;
 
+import com.company.jsonWork.FileType;
+import com.company.jsonWork.FileWriteController;
 import lombok.experimental.UtilityClass;
 import org.openqa.selenium.By;
 import org.openqa.selenium.InvalidSelectorException;
-import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @UtilityClass
 public class FeedElementsMine {
@@ -22,31 +23,25 @@ public class FeedElementsMine {
                 .collect(Collectors.toList());
     }
 
-    public void mineFeedRow(WebElement row){
+    public void mineFeedRowToFiles(WebElement row){
         row = row.findElement(By.tagName("div"));
 
         String id = row.getAttribute("id");
-        System.out.println("id" + id);
-
         row = row.findElement(By.tagName("div"));
         String text;
         List<String> urls;
         try {
             WebElement wallPost = row.findElement(By.className("wall_post_text"));
-
             text = row.findElement(By.className("wall_post_text")).getText();
-
             urls = wallPost.findElements(By.tagName("a")).stream().map(e -> e.getAttribute("href")).collect(Collectors.toList());
-
         } catch (org.openqa.selenium.NoSuchElementException e){
             text = "";
             urls = new ArrayList<>();
         }
-
-        List<String> pics;
+        List<String> picturesUrl;
         try {
             // WebElement wallPics = row.findElement(By.className("page_post_sized_thumbs  clear_fix"));
-            pics = row.findElements(By.tagName("a"))
+            picturesUrl = row.findElements(By.tagName("a"))
                     .stream()
                     .filter(e -> Objects.nonNull(e.getAttribute("aria-label")))
                     .filter(e -> e.getAttribute("aria-label").equals("фотография"))
@@ -55,14 +50,20 @@ public class FeedElementsMine {
                     .collect(Collectors.toList());
         }
         catch (InvalidSelectorException e){
-            pics = new ArrayList<>();
+            picturesUrl = new ArrayList<>();
         }
-        System.out.println("text" + text);
-        System.out.println("urls: ");
-        urls.stream().forEach(System.out::println);
-        System.out.println("pics: ");
-        pics.stream().forEach(System.out::println);
+        saveToFiles(id, text, urls, picturesUrl);
+    }
 
+    private void saveToFiles(String id, String text, List<String> urls, List<String> picturesUrl){
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        executorService.execute(new FileWriteController(new FileType.First(id, text), FileType.FIRST));
+        executorService.execute(new FileWriteController(new FileType.Second(id, urls), FileType.SECOND));
+        executorService.execute(new FileWriteController(new FileType.Third(id, picturesUrl), FileType.THIRD));
+        executorService.shutdown();
+        if (!executorService.isTerminated()){
+            System.out.println("is not terminated");
+        }
     }
 
 }

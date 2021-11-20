@@ -2,7 +2,6 @@ package com.company;
 
 
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 
@@ -27,6 +26,7 @@ public class ConfProperities {
             e.printStackTrace();
         } finally {
             try {
+                assert fileInputStream != null;
                 fileInputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();

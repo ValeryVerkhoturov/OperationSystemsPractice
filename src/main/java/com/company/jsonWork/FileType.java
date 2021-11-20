@@ -4,25 +4,25 @@ import lombok.Getter;
 
 import java.util.List;
 
-enum FileType {
-    FIRST("com/company/jsonWork/files/file1.json", First.class),
-    SECOND("com/company/jsonWork/files/file2.json", Second.class),
-    THIRD("com/company/jsonWork/files/file3.json", Third.class);
+public enum FileType {
+    FIRST("src/main/java/com/company/jsonWork/files/file1.json", First.class),
+    SECOND("src/main/java/com/company/jsonWork/files/file2.json", Second.class),
+    THIRD("src/main/java/com/company/jsonWork/files/file3.json", Third.class);
 
     @Getter
-    private String path;
+    private final String path;
 
     @Getter
-    private Class<FileModel> cls;
+    private final Class<? extends FileModel> cls;
 
-    FileType(String path, Class cls) {
+    FileType(String path, Class<? extends FileModel> cls) {
         this.path = path;
         this.cls = cls;
     }
 
-    record First(int id, String text) implements FileModel{}
+    public static record First(String id, String text) implements FileModel{}
 
-    record Second(int id, List<String> pictures) implements FileModel{}
+    public static record Second(String id, List<String> pictures) implements FileModel{}
 
-    record Third(int id, List<String> urls) implements FileModel{}
+    public static record Third(String id, List<String> urls) implements FileModel{}
 }

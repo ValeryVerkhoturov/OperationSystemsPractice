@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Value;
+import org.openqa.selenium.remote.tracing.opentelemetry.SeleniumSpanExporter;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -25,29 +28,17 @@ public class FileReadController implements Runnable{
         switch (fileType){
             case FIRST:
                 synchronized (FileType.FIRST){
-                    try {
-                        readFile();
-                    } catch (JsonProcessingException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    readFile();
                 }
                 break;
             case SECOND:
                 synchronized (FileType.SECOND){
-                    try {
-                        readFile();
-                    } catch (JsonProcessingException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    readFile();
                 }
                 break;
             case THIRD:
                 synchronized (FileType.THIRD){
-                    try {
-                        readFile();
-                    } catch (JsonProcessingException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    readFile();
                 }
                 break;
             default:
@@ -59,9 +50,18 @@ public class FileReadController implements Runnable{
         }
     }
 
-    public void readFile() throws JsonProcessingException, InterruptedException {
+    public void readFile(){
         ObjectMapper objectMapper = new ObjectMapper();
-        List<FileModel> list = Arrays.asList(objectMapper.readValue(fileType.getPath(), fileType.getCls()));
-        blockingQueue.put(list);
+        List<FileModel> list;
+        File file = new File(fileType.getPath());
+        try {
+            if (file.exists())
+                list = objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, fileType.getCls()));
+            else
+                list = new ArrayList<>();
+            blockingQueue.put(list);
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -8,9 +8,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.SneakyThrows;
 import lombok.Value;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -23,7 +27,6 @@ public class FileWriteController implements Runnable{
     // where to write
     FileType fileType;
 
-    @SneakyThrows
     @Override
     public void run() {
         switch (fileType){
@@ -51,13 +54,29 @@ public class FileWriteController implements Runnable{
         }
     }
 
-    private void writeInFile() throws JsonProcessingException, InterruptedException {
+    private void writeInFile() {
         BlockingQueue<List<FileModel>> blockingQueue = new ArrayBlockingQueue<>(1, true);
         FileReadController fileReadController = new FileReadController(fileType, blockingQueue);
         fileReadController.readFile();
-        List<FileModel> list = blockingQueue.take();
+        List<FileModel> list = null;
+        try {
+            list = blockingQueue.take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (Objects.isNull(list))
+            list = new ArrayList<>();
+        list.add(object);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        File file = new File(fileType.getPath());
+        try {
+            if (!file.exists())
+                file.createNewFile();
+            objectMapper.writeValue(new File(fileType.getPath()), list);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
