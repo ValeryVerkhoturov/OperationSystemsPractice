@@ -1,5 +1,6 @@
 package com.company.vkFeedMine;
 
+import com.company.jsonWork.ConsoleWriter;
 import com.company.jsonWork.FileType;
 import com.company.jsonWork.FileWriteController;
 import lombok.experimental.UtilityClass;
@@ -61,9 +62,7 @@ public class FeedElementsMine {
         executorService.execute(new FileWriteController(new FileType.Second(id, urls), FileType.SECOND));
         executorService.execute(new FileWriteController(new FileType.Third(id, picturesUrl), FileType.THIRD));
         executorService.shutdown();
-        if (!executorService.isTerminated()){
-            System.out.println("is not terminated");
-        }
+        new Thread(new ConsoleWriter(executorService)).start();
     }
 
 }

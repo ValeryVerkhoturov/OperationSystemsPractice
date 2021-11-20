@@ -9,7 +9,8 @@ import org.openqa.selenium.WebElement;
 public class Main {
 
     public static void main(String[] args) {
-        WebElement column = (new BrowserMiner()).mine();
+        // tasks 11 - 16
+        WebElement column = new BrowserMiner().mine();
         FeedElementsMine.findRows(column).forEach(FeedElementsMine::mineFeedRowToFiles);
     }
 }
