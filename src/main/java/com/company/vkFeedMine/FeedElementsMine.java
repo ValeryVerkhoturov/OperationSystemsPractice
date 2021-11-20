@@ -21,7 +21,7 @@ public class FeedElementsMine {
                 .filter(WebElement::isDisplayed)
                 .filter(e -> Objects.nonNull(e.getAttribute("class")))
                 .filter(e -> e.getAttribute("class").toLowerCase().trim().equals("feed_row"))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public void mineFeedRowToFiles(WebElement row){
@@ -29,30 +29,33 @@ public class FeedElementsMine {
 
         String id = row.getAttribute("id");
         row = row.findElement(By.tagName("div"));
-        String text;
-        List<String> urls;
+        String text = null;
+        try {
+            text = row.findElement(By.className("wall_post_text")).getText().replace("\n", " ");
+        } catch (org.openqa.selenium.NoSuchElementException ignore){}
+
+        List<String> urls = null;
         try {
             WebElement wallPost = row.findElement(By.className("wall_post_text"));
-            text = row.findElement(By.className("wall_post_text")).getText();
-            urls = wallPost.findElements(By.tagName("a")).stream().map(e -> e.getAttribute("href")).collect(Collectors.toList());
-        } catch (org.openqa.selenium.NoSuchElementException e){
-            text = "";
-            urls = new ArrayList<>();
-        }
-        List<String> picturesUrl;
+            urls = wallPost.findElements(By.tagName("a")).stream().map(e -> e.getAttribute("href")).toList();
+        } catch (org.openqa.selenium.NoSuchElementException ignore){}
+        if (Objects.nonNull(urls) && urls.size() == 0)
+            urls = null;
+
+        List<String> picturesUrl = null;
         try {
-            // WebElement wallPics = row.findElement(By.className("page_post_sized_thumbs  clear_fix"));
             picturesUrl = row.findElements(By.tagName("a"))
                     .stream()
                     .filter(e -> Objects.nonNull(e.getAttribute("aria-label")))
                     .filter(e -> e.getAttribute("aria-label").equals("фотография"))
                     .map(e -> e.getAttribute("style"))
                     .map(s -> s.substring(s.indexOf("url(")+5, s.indexOf("\")") - 1))
-                    .collect(Collectors.toList());
+                    .toList();
         }
-        catch (InvalidSelectorException e){
-            picturesUrl = new ArrayList<>();
-        }
+        catch (InvalidSelectorException ignore){}
+        if (Objects.nonNull(picturesUrl) && picturesUrl.size() == 0)
+            urls = null;
+
         saveToFiles(id, text, urls, picturesUrl);
     }
 
@@ -65,4 +68,14 @@ public class FeedElementsMine {
         new Thread(new ConsoleWriter(executorService)).start();
     }
 
+    private List<String> findUrls (WebElement row){
+        List<String> urls = null;
+        try {
+            WebElement wallPost = row.findElement(By.className("wall_post_text"));
+            urls = wallPost.findElements(By.tagName("a")).stream().map(e -> e.getAttribute("href")).toList();
+        } catch (org.openqa.selenium.NoSuchElementException ignore){}
+        if (Objects.nonNull(urls) && urls.size() == 0)
+            urls = null;
+        return urls;
+    }
 }
