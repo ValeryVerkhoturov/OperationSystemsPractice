@@ -1,13 +1,14 @@
 package com.company.jsonWork;
 
+import com.company.ConfProperities;
 import lombok.Getter;
 
 import java.util.List;
 
 public enum FileType {
-    FIRST("src/main/java/com/company/jsonWork/files/file1.json", First.class),
-    SECOND("src/main/java/com/company/jsonWork/files/file2.json", Second.class),
-    THIRD("src/main/java/com/company/jsonWork/files/file3.json", Third.class);
+    FIRST(ConfProperities.getProperty("file1path"), First.class),
+    SECOND(ConfProperities.getProperty("file2path"), Second.class),
+    THIRD(ConfProperities.getProperty("file3path"), Third.class);
 
     @Getter
     private final String path;

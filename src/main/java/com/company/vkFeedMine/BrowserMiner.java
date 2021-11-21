@@ -10,8 +10,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class BrowserMiner {
 
@@ -40,7 +38,7 @@ public class BrowserMiner {
         webDriver.get(ConfProperities.getProperty("vkfeedpage"));
     }
 
-    private void closeBrowser(){
+    public void closeBrowser(){
         webDriver.close();
     }
 

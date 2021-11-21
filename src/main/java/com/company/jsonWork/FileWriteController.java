@@ -1,5 +1,6 @@
 package com.company.jsonWork;
 
+import com.company.ConfProperities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Value;
@@ -9,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -50,28 +50,43 @@ public class FileWriteController implements Runnable{
     }
 
     private void writeInFile() {
-        BlockingQueue<List<FileModel>> blockingQueue = new ArrayBlockingQueue<>(1, true);
-        FileReadController fileReadController = new FileReadController(fileType, blockingQueue);
-        fileReadController.readFile();
-        List<FileModel> list = null;
-        try {
-            list = blockingQueue.take();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (Objects.isNull(list))
-            list = new ArrayList<>();
+        List<FileModel> list = readExistingFile();
         list.add(object);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         File file = new File(fileType.getPath());
+        checkExistingOutputDirectory();
         try {
-            if (!file.exists())
-                file.createNewFile();
-            objectMapper.writeValue(new File(fileType.getPath()), list);
+            checkExistingFile(file);
+            objectMapper.writeValue(file, list);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private List<FileModel> readExistingFile(){
+        BlockingQueue<List<FileModel>> blockingQueue = new ArrayBlockingQueue<>(1, true);
+        FileReadController fileReadController = new FileReadController(fileType, blockingQueue);
+        fileReadController.readFile();
+        List<FileModel> list;
+        try {
+            list = blockingQueue.take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            list = new ArrayList<>();
+        }
+        return list;
+    }
+
+    private void checkExistingOutputDirectory(){
+        File directory = new File(ConfProperities.getProperty("outputpath"));
+        if (!directory.exists())
+            directory.mkdirs();
+    }
+
+    private void checkExistingFile(File file) throws IOException {
+        if (!file.exists())
+            file.createNewFile();
     }
 }

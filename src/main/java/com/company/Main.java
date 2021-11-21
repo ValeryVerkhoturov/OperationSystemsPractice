@@ -10,7 +10,9 @@ public class Main {
 
     public static void main(String[] args) {
         // tasks 11 - 16
-        WebElement column = new BrowserMiner().mine();
+        BrowserMiner browserMiner = new BrowserMiner();
+        WebElement column = browserMiner.mine();
         FeedElementsMine.findRows(column).forEach(FeedElementsMine::mineFeedRowToFiles);
+        browserMiner.closeBrowser();
     }
 }

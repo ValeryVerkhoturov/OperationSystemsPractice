@@ -1,8 +1,5 @@
 package com.company;
 
-
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 
 import java.io.FileInputStream;
@@ -11,10 +8,9 @@ import java.util.Optional;
 import java.util.Properties;
 
 @UtilityClass
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ConfProperities {
 
-    Properties properties;
+    private static Properties properties;
 
     static {
         FileInputStream fileInputStream = null;
@@ -25,7 +21,7 @@ public class ConfProperities {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            Optional.of(fileInputStream).ifPresent(fiStream -> {
+            Optional.ofNullable(fileInputStream).ifPresent(fiStream -> {
                 try {
                     fiStream.close();
                 } catch (IOException e) {

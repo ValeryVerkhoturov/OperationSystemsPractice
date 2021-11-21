@@ -15,7 +15,8 @@ import java.util.concurrent.*;
 public class FeedElementsMine {
 
     public List<WebElement> findRows(WebElement column){
-        return column.findElements(By.tagName("div"))
+        return column
+                .findElements(By.tagName("div"))
                 .stream()
                 .filter(e -> Objects.nonNull(e.getAttribute("class")))
                 .filter(e -> e.getAttribute("class").toLowerCase().trim().equals("feed_row"))
@@ -65,16 +66,15 @@ public class FeedElementsMine {
                     .map(e -> e.getAttribute("href"))
                     .toList();
         } catch (org.openqa.selenium.NoSuchElementException ignore){}
-        if (Objects.nonNull(urls) && urls.size() == 0)
-            urls = null;
-        return urls;
+        return filterEmptyLists(urls);
     }
 
     private List<String> findPictureUrl(WebElement row){
         row = row.findElement(By.tagName("div")).findElement(By.tagName("div"));
         List<String> picturesUrl = null;
         try {
-            picturesUrl = row.findElements(By.tagName("a"))
+            picturesUrl = row
+                    .findElements(By.tagName("a"))
                     .stream()
                     .filter(e -> Objects.nonNull(e.getAttribute("aria-label")))
                     .filter(e -> e.getAttribute("aria-label").equals("фотография"))
@@ -83,8 +83,15 @@ public class FeedElementsMine {
                     .toList();
         }
         catch (InvalidSelectorException ignore){}
-        if (Objects.nonNull(picturesUrl) && picturesUrl.size() == 0)
-            picturesUrl = null;
-        return picturesUrl;
+        return filterEmptyLists(picturesUrl);
+    }
+
+    private <T> List<T> filterEmptyLists(List<T> list){
+        if (Objects.isNull(list))
+            return null;
+        list = list.stream().filter(Objects::nonNull).toList();
+        if (list.size() == 0)
+            return null;
+        return list;
     }
 }
