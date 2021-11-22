@@ -67,8 +67,8 @@ public class FileWriteController implements Runnable{
 
     private List<FileModel> readExistingFile(){
         BlockingQueue<List<FileModel>> blockingQueue = new ArrayBlockingQueue<>(1, true);
-        FileReadController fileReadController = new FileReadController(fileType, blockingQueue);
-        fileReadController.readFile();
+        FileReadController fileReadController = new FileReadController(fileType, blockingQueue, false);
+        fileReadController.run();
         List<FileModel> list;
         try {
             list = blockingQueue.take();

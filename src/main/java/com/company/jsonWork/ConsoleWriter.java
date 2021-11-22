@@ -24,7 +24,7 @@ public class ConsoleWriter implements Runnable{
                 .toList();
         List<Runnable> fileReaders = IntStream
                 .range(0, filesAmmount)
-                .mapToObj(i -> (Runnable) new FileReadController(FileType.values()[i], blockingQueues.get(i)))
+                .mapToObj(i -> (Runnable) new FileReadController(FileType.values()[i], blockingQueues.get(i), true))
                 .toList();
         observeFiles(filesAmmount, blockingQueues, fileReaders);
     }

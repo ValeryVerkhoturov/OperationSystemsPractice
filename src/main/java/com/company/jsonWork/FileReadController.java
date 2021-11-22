@@ -19,8 +19,14 @@ public class FileReadController implements Runnable{
     // output way
     BlockingQueue<List<FileModel>> blockingQueue;
 
+    boolean isSynchronized;
+
     @Override
     public void run() {
+        if (!isSynchronized){
+            readFile();
+            return;
+        }
         switch (fileType){
             case FIRST:
                 synchronized (FileType.FIRST){
@@ -46,7 +52,7 @@ public class FileReadController implements Runnable{
         }
     }
 
-    public void readFile(){
+    private void readFile(){
         ObjectMapper objectMapper = new ObjectMapper();
         List<FileModel> list;
         File file = new File(fileType.getPath());
