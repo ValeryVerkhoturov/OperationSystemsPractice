@@ -6,19 +6,36 @@ import lombok.Getter;
 import java.util.List;
 
 public enum FileType {
-    FIRST(ConfProperities.getProperty("file1path"), First.class),
-    SECOND(ConfProperities.getProperty("file2path"), Second.class),
-    THIRD(ConfProperities.getProperty("file3path"), Third.class);
+    FIRST(First.class,
+            ConfProperities.getProperty("file1path"),
+            ConfProperities.getProperty("localaddress"),
+            Integer.parseInt(ConfProperities.getProperty("file1port"))),
+    SECOND(Second.class,
+            ConfProperities.getProperty("file2path"),
+            ConfProperities.getProperty("localaddress"),
+            Integer.parseInt(ConfProperities.getProperty("file2port"))),
+    THIRD(Third.class,
+            ConfProperities.getProperty("file3path"),
+            ConfProperities.getProperty("localaddress"),
+            Integer.parseInt(ConfProperities.getProperty("file3port")));
+
+    @Getter
+    private final Class<? extends FileModel> cls;
 
     @Getter
     private final String path;
 
     @Getter
-    private final Class<? extends FileModel> cls;
+    private  final String hostname;
 
-    FileType(String path, Class<? extends FileModel> cls) {
+    @Getter
+    private  final int port;
+
+    FileType(Class<? extends FileModel> cls, String path, String hostname, int port) {
         this.path = path;
         this.cls = cls;
+        this.hostname = hostname;
+        this.port = port;
     }
 
     public static record First(String id, String text) implements FileModel{}

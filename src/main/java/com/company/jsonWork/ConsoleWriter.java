@@ -1,13 +1,14 @@
 package com.company.jsonWork;
 
+import lombok.SneakyThrows;
 import lombok.Value;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 /** Do Thread 4 work */
 @Value
@@ -17,38 +18,33 @@ public class ConsoleWriter implements Runnable{
 
     @Override
     public void run() {
-        int filesAmmount = FileType.values().length;
-        List<ArrayBlockingQueue<List<FileModel>>> blockingQueues = IntStream
-                .range(0, filesAmmount)
-                .mapToObj(i -> new ArrayBlockingQueue<List<FileModel>>(1, true))
-                .toList();
-        List<Runnable> fileReaders = IntStream
-                .range(0, filesAmmount)
-                .mapToObj(i -> (Runnable) new FileReadController(FileType.values()[i], blockingQueues.get(i), true))
-                .toList();
-        observeFiles(filesAmmount, blockingQueues, fileReaders);
+        List<ArrayBlockingQueue<List<FileModel>>> blockingQueues = new ArrayList<>();
+        List<Runnable> fileReaders = new ArrayList<>();
+        for (FileType fileType: FileType.values()) {
+            ArrayBlockingQueue<List<FileModel>> arrayBlockingQueue = new ArrayBlockingQueue<List<FileModel>>(1, true);
+            blockingQueues.add(arrayBlockingQueue);
+            fileReaders.add(new FileReadController(fileType, arrayBlockingQueue, true));
+        }
+        observeFiles(blockingQueues, fileReaders);
     }
 
-    private void observeFiles(int filesAmmount, List<ArrayBlockingQueue<List<FileModel>>> blockingQueues, List<Runnable> fileReaders){
-        while (!executorService.isTerminated()){
-            IntStream.range(0 , filesAmmount).forEach(i -> {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+    @SneakyThrows
+    private void observeFiles(List<ArrayBlockingQueue<List<FileModel>>> blockingQueues, List<Runnable> fileReaders){
+        synchronized (ConsoleWriter.class){
+            while (!executorService.isTerminated()) {
+                TimeUnit.MILLISECONDS.sleep(100);
+                int fileNum = 0;
+                for (FileType fileType : FileType.values()) {
+                    if (!new File(fileType.getPath()).exists())
+                        System.out.println("\nFile " + (fileNum + 1) + " не существует");
+                    else {
+                        System.out.println("\nFile " + (fileNum + 1));
+                        fileReaders.get(fileNum).run();
+                        blockingQueues.get(fileNum).take().forEach(System.out::println);
+                    }
+                    fileNum++;
                 }
-                if (!new File(FileType.values()[i].getPath()).exists()) {
-                    System.out.println("\nFile " + (i + 1) + " не существует");
-                    return;
-                }
-                System.out.println("\nFile " + (i + 1));
-                fileReaders.get(i).run();
-                try {
-                    blockingQueues.get(i).take().forEach(System.out::println);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
+            }
         }
     }
 }

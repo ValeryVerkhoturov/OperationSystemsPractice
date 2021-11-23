@@ -12,13 +12,9 @@ public class FileReader implements Runnable{
 
     FileType fileType;
 
-    String hostname;
-
-    int port;
-
     @SneakyThrows
     public void run() {
-        Socket socket = new Socket(hostname, port);
+        Socket socket = new Socket(fileType.getHostname(), fileType.getPort());
 
         BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
         DataOutputStream dos = new DataOutputStream(bos);

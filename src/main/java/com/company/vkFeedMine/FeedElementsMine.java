@@ -28,7 +28,7 @@ public class FeedElementsMine {
     }
 
     private void saveToFiles(String id, String text, List<String> urls, List<String> picturesUrl){
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        ExecutorService executorService = Executors.newFixedThreadPool(FileType.values().length);
         executorService.execute(new FileWriteController(new FileType.First(id, text), FileType.FIRST));
         executorService.execute(new FileWriteController(new FileType.Second(id, urls), FileType.SECOND));
         executorService.execute(new FileWriteController(new FileType.Third(id, picturesUrl), FileType.THIRD));
@@ -37,9 +37,7 @@ public class FeedElementsMine {
     }
 
     private String findId(WebElement row){
-        return row
-                .findElement(By.tagName("div"))
-                .getAttribute("id");
+        return row.findElement(By.tagName("div")).getAttribute("id");
     }
 
     private String findText(WebElement row){

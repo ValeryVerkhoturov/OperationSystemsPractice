@@ -15,14 +15,10 @@ public class DataBaseWriter implements Runnable{
 
     FileType fileType;
 
-    String hostname;
-
-    int port;
-
     @SneakyThrows
     @Override
     public void run() {
-        ServerSocket serverSocket = new ServerSocket(port, 10, InetAddress.getByName(hostname));
+        ServerSocket serverSocket = new ServerSocket(fileType.getPort(), 20, InetAddress.getByName(fileType.getHostname()));
         Socket socket = serverSocket.accept();
 
         BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
@@ -36,5 +32,6 @@ public class DataBaseWriter implements Runnable{
         System.out.println(fileType);
         bos.close();
         dis.close();
+        serverSocket.close();
     }
 }
