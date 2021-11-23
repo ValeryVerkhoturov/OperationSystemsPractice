@@ -13,12 +13,12 @@ public class Main {
     @SneakyThrows
     public static void main(String[] args) {
         // tasks 11 - 16
-        BrowserMiner browserMiner = new BrowserMiner();
-        WebElement column = browserMiner.mine();
-        FeedElementsMine.findRows(column).parallelStream().forEach(FeedElementsMine::mineFeedRowToFiles);
-        browserMiner.closeBrowser();
-//        ProcessesRunner processesRunner = new ProcessesRunner();
-//        processesRunner.run();
+//        BrowserMiner browserMiner = new BrowserMiner();
+//        WebElement column = browserMiner.mine();
+//        FeedElementsMine.findRows(column).parallelStream().forEach(FeedElementsMine::mineFeedRowToFiles);
+//        browserMiner.closeBrowser();
+        ProcessesRunner processesRunner = new ProcessesRunner();
+        processesRunner.run();
 
     }
 }

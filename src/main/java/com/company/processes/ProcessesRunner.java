@@ -6,15 +6,15 @@ import com.company.jsonWork.FileType;
 /** Process 2 deamon */
 public class ProcessesRunner implements Runnable {
 
+    private static String[] portProperties = new String[]{"file1port", "file2port", "file3port"};
     public void run() {
-        runWriters();
+        startWriters();
         System.out.println("Писатели запущены");
-        runReaders();
+        startReaders();
         System.out.println("Читатели запущены");
     }
 
-    private void runReaders(){
-        String[] portProperties = new String[]{"file1port", "file2port", "file3port"};
+    private void startReaders(){
         int fileNum = 0;
         for (FileType fileType: FileType.values()) {
             Thread thread = new Thread(
@@ -22,13 +22,13 @@ public class ProcessesRunner implements Runnable {
                             fileType,
                             ConfProperities.getProperty("localaddress"),
                             Integer.parseInt(ConfProperities.getProperty(portProperties[fileNum]))));
-            thread.run();
+            thread.setDaemon(true);
+            thread.start();
             fileNum++;
         }
     }
 
-    private void runWriters(){
-        String[] portProperties = new String[]{"file1port", "file2port", "file3port"};
+    private void startWriters(){
         int fileNum = 0;
         for (FileType fileType: FileType.values()) {
             Thread thread = new Thread(
