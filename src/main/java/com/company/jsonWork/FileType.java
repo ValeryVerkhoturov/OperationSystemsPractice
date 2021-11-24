@@ -1,7 +1,13 @@
 package com.company.jsonWork;
 
 import com.company.ConfProperities;
+import com.company.processes.DataBaseWriter;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.mongodb.client.MongoCollection;
+import lombok.Data;
 import lombok.Getter;
+import org.bson.Document;
 
 import java.util.List;
 
@@ -9,15 +15,18 @@ public enum FileType {
     FIRST(First.class,
             ConfProperities.getProperty("file1path"),
             ConfProperities.getProperty("localaddress"),
-            Integer.parseInt(ConfProperities.getProperty("file1port"))),
+            Integer.parseInt(ConfProperities.getProperty("file1port")),
+            DataBaseWriter.collections.get(0)),
     SECOND(Second.class,
             ConfProperities.getProperty("file2path"),
             ConfProperities.getProperty("localaddress"),
-            Integer.parseInt(ConfProperities.getProperty("file2port"))),
+            Integer.parseInt(ConfProperities.getProperty("file2port")),
+            DataBaseWriter.collections.get(1)),
     THIRD(Third.class,
             ConfProperities.getProperty("file3path"),
             ConfProperities.getProperty("localaddress"),
-            Integer.parseInt(ConfProperities.getProperty("file3port")));
+            Integer.parseInt(ConfProperities.getProperty("file3port")),
+            DataBaseWriter.collections.get(2));
 
     @Getter
     private final Class<? extends FileModel> cls;
@@ -31,11 +40,15 @@ public enum FileType {
     @Getter
     private  final int port;
 
-    FileType(Class<? extends FileModel> cls, String path, String hostname, int port) {
-        this.path = path;
+    @Getter
+    private final MongoCollection<Document> collection;
+
+    FileType(Class<? extends FileModel> cls, String path, String hostname, int port, MongoCollection<Document> collection) {
         this.cls = cls;
+        this.path = path;
         this.hostname = hostname;
         this.port = port;
+        this.collection = collection;
     }
 
     public static record First(String id, String text) implements FileModel{}

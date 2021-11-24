@@ -22,6 +22,7 @@ public class FileReader implements Runnable{
         File file = new File(fileType.getPath());
         dos.writeLong(file.length());
 
+
         synchronizedFileReading(file, bos);
         bos.close();
         dos.close();
