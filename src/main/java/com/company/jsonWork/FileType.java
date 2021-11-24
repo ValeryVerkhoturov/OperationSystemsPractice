@@ -1,7 +1,7 @@
 package com.company.jsonWork;
 
 import com.company.ConfProperities;
-import com.company.processes.DataBaseServer;
+import com.company.processes.DataBaseWriter;
 import com.mongodb.client.MongoCollection;
 import lombok.Getter;
 import org.bson.Document;
@@ -13,17 +13,17 @@ public enum FileType {
             ConfProperities.getProperty("file1path"),
             ConfProperities.getProperty("localaddress"),
             Integer.parseInt(ConfProperities.getProperty("file1port")),
-            DataBaseServer.collections.get(0)),
+            DataBaseWriter.collections.get(0)),
     SECOND(Second.class,
             ConfProperities.getProperty("file2path"),
             ConfProperities.getProperty("localaddress"),
             Integer.parseInt(ConfProperities.getProperty("file2port")),
-            DataBaseServer.collections.get(1)),
+            DataBaseWriter.collections.get(1)),
     THIRD(Third.class,
             ConfProperities.getProperty("file3path"),
             ConfProperities.getProperty("localaddress"),
             Integer.parseInt(ConfProperities.getProperty("file3port")),
-            DataBaseServer.collections.get(2));
+            DataBaseWriter.collections.get(2));
 
     @Getter
     private final Class<? extends FileModel> cls;

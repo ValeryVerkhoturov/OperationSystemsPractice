@@ -24,13 +24,13 @@ import java.net.Socket;
 import java.util.List;
 
 /** Process 1 */
-public class DataBaseServer implements Runnable{
+public class DataBaseWriter implements Runnable{
 
     FileType fileType;
 
     public static final List<MongoCollection<Document>> collections;
 
-    public DataBaseServer(FileType fileType){
+    public DataBaseWriter(FileType fileType){
         this.fileType = fileType;
     }
 

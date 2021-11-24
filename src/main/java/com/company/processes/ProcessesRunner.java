@@ -24,6 +24,6 @@ public class ProcessesRunner implements Runnable {
 
     private void startWriters(){
         for (FileType fileType: FileType.values())
-            new Thread(new DataBaseServer(fileType)).start();
+            new Thread(new DataBaseWriter(fileType)).start();
     }
 }
