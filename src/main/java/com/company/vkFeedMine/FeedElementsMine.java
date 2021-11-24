@@ -18,8 +18,21 @@ public class FeedElementsMine {
         return column
                 .findElements(By.tagName("div"))
                 .stream()
+                .filter(e -> {
+                    try {
+                        return e.isDisplayed();
+                    } catch (org.openqa.selenium.StaleElementReferenceException exception){
+                        return e.isDisplayed();
+                    }
+                })
                 .filter(e -> Objects.nonNull(e.getAttribute("class")))
-                .filter(e -> e.getAttribute("class").toLowerCase().trim().equals("feed_row"))
+                .filter(e -> {
+                    try {
+                        return e.getAttribute("class").toLowerCase().trim().equals("feed_row");
+                    } catch (org.openqa.selenium.StaleElementReferenceException exception){
+                        return e.getAttribute("class").toLowerCase().trim().equals("feed_row");
+                    }
+                })
                 .toList();
     }
 

@@ -7,6 +7,7 @@ import lombok.Value;
 import java.io.*;
 import java.net.Socket;
 
+/** Process 2 deamon */
 @Value
 public class FileReader implements Runnable{
 

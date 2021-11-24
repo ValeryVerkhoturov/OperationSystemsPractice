@@ -18,23 +18,19 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 
 import java.io.*;
-import java.io.FileReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 /** Process 1 */
-public class DataBaseWriter implements Runnable{
+public class DataBaseServer implements Runnable{
 
     FileType fileType;
 
     public static final List<MongoCollection<Document>> collections;
 
-    public DataBaseWriter(FileType fileType){
+    public DataBaseServer(FileType fileType){
         this.fileType = fileType;
     }
 
@@ -61,30 +57,25 @@ public class DataBaseWriter implements Runnable{
     @SneakyThrows
     @Override
     public void run() {
-        ServerSocket serverSocket = new ServerSocket(fileType.getPort(), 20, InetAddress.getByName(fileType.getHostname()));
+        ServerSocket serverSocket = new ServerSocket(fileType.getPort(), 1, InetAddress.getByName(fileType.getHostname()));
         Socket socket = serverSocket.accept();
 
-        BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
-        DataInputStream dis = new DataInputStream(bis);
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
+        DataInputStream dataInputStream = new DataInputStream(bufferedInputStream);
 
-        long fileLength = dis.readLong();
-        System.out.println(fileLength);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        BufferedOutputStream bos = new BufferedOutputStream(baos);
+        long fileLength = dataInputStream.readLong();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        List<FileModel> list = objectMapper.readValue(bis.readNBytes(Math.toIntExact(fileLength)), objectMapper.getTypeFactory().constructCollectionType(List.class, fileType.getCls()));
-        insertInCollection(list);
+        List<FileModel> list = objectMapper.readValue(bufferedInputStream.readNBytes(Math.toIntExact(fileLength)), objectMapper.getTypeFactory().constructCollectionType(List.class, fileType.getCls()));
         serverSocket.close();
         socket.close();
-        bis.close();
-        dis.close();
-        baos.close();
-        bos.close();
+        bufferedInputStream.close();
+        dataInputStream.close();
+
+        insertInCollection(list);
     }
 
     private void insertInCollection(List<FileModel> list){
-        Document document = new Document();
         switch (fileType){
             case FIRST -> list.stream().map(item -> (FileType.First) item).forEach(this::insertInCollection);
             case SECOND -> list.stream().map(item -> (FileType.Second) item).forEach(this::insertInCollection);
