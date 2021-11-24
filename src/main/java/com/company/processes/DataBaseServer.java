@@ -1,7 +1,7 @@
 package com.company.processes;
 
 import com.company.ConfProperities;
-import com.company.Credentails;
+import com.company.KeyStore;
 import com.company.jsonWork.FileModel;
 import com.company.jsonWork.FileType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,9 +36,9 @@ public class DataBaseServer implements Runnable{
 
     static {
         ConnectionString connectionString = new ConnectionString("mongodb+srv://"
-                + Credentails.DB_USER + ":"
-                + Credentails.DB_PASSWORD + "@"
-                + Credentails.DB_CLUSTER
+                + KeyStore.getProperty("dbuser") + ":"
+                + KeyStore.getProperty("dbpassword") + "@"
+                + KeyStore.getProperty("cluster")
                 + ".w1rpn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
         CodecRegistry pojoCodecRegistry = CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build());
         CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
