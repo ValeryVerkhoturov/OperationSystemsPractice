@@ -41,12 +41,8 @@ public class DataBaseWriter implements Runnable{
                 + Properities.getProperty("dbpassword") + "@"
                 + Properities.getProperty("cluster")
                 + ".w1rpn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
-        CodecRegistry pojoCodecRegistry = CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build());
-        CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
         MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(connectionString)
-                .codecRegistry(codecRegistry)
-                .build();
+                .applyConnectionString(connectionString).build();
         MongoClient mongoClient = MongoClients.create(settings);
         database = mongoClient.getDatabase(Properities.getProperty("dbname"));
         collections = List.of(Properities.getProperty("file1dbcollection"),
