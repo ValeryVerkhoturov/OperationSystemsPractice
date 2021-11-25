@@ -29,6 +29,8 @@ public class DataBaseWriter implements Runnable{
 
     public static final List<MongoCollection<Document>> collections;
 
+    public static final MongoDatabase database;
+
     public DataBaseWriter(FileType fileType){
         this.fileType = fileType;
     }
@@ -46,11 +48,11 @@ public class DataBaseWriter implements Runnable{
                 .codecRegistry(codecRegistry)
                 .build();
         MongoClient mongoClient = MongoClients.create(settings);
-        MongoDatabase mongoDatabase = mongoClient.getDatabase(Properities.getProperty("dbname"));
+        database = mongoClient.getDatabase(Properities.getProperty("dbname"));
         collections = List.of(Properities.getProperty("file1dbcollection"),
                 Properities.getProperty("file2dbcollection"),
                 Properities.getProperty("file3dbcollection"))
-                .stream().map(mongoDatabase::getCollection).toList();
+                .stream().map(database::getCollection).toList();
     }
 
     @SneakyThrows
