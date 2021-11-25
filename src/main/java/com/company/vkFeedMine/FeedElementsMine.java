@@ -30,11 +30,11 @@ public class FeedElementsMine {
         saveToFiles(findId(row), findText(row), findPictureUrl(row), findUrls(row));
     }
 
-    private void saveToFiles(String id, String text, List<String> urls, List<String> picturesUrl){
+    private void saveToFiles(String id, String text, List<String> pictureUrls, List<String> urls){
         ExecutorService executorService = Executors.newFixedThreadPool(FileType.values().length);
         executorService.execute(new FileWriteController(new FileType.First(id, text), FileType.FIRST));
-        executorService.execute(new FileWriteController(new FileType.Second(id, urls), FileType.SECOND));
-        executorService.execute(new FileWriteController(new FileType.Third(id, picturesUrl), FileType.THIRD));
+        executorService.execute(new FileWriteController(new FileType.Second(id, pictureUrls), FileType.SECOND));
+        executorService.execute(new FileWriteController(new FileType.Third(id, urls), FileType.THIRD));
         executorService.shutdown();
         new Thread(new ConsoleWriter(executorService)).start();
     }
