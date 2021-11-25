@@ -1,6 +1,6 @@
 package com.company.jsonWork;
 
-import com.company.ConfProperities;
+import com.company.Properities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Value;
@@ -80,7 +80,7 @@ public class FileWriteController implements Runnable{
     }
 
     private void checkExistingOutputDirectory(){
-        File directory = new File(ConfProperities.getProperty("outputpath"));
+        File directory = new File(Properities.getProperty("outputpath"));
         if (!directory.exists())
             directory.mkdirs();
     }

@@ -6,18 +6,22 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 @UtilityClass
-public class ConfProperities {
+public class Properities {
 
-    private static Properties properties;
+    private static Properties properties = new Properties();
 
     static {
         FileInputStream fileInputStream = null;
+        String[] paths = new String[]{"src/main/resources/conf.properties", "src/main/resources/keystore.properties"};
         try{
-            fileInputStream = new FileInputStream("src/main/resources/conf.properties");
-            properties = new Properties();
-            properties.load(fileInputStream);
+            for (String path: paths) {
+                fileInputStream = new FileInputStream(path);
+                properties.load(fileInputStream);
+                fileInputStream.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

@@ -1,7 +1,6 @@
 package com.company.processes;
 
-import com.company.ConfProperities;
-import com.company.KeyStore;
+import com.company.Properities;
 import com.company.jsonWork.FileModel;
 import com.company.jsonWork.FileType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,9 +35,9 @@ public class DataBaseWriter implements Runnable{
 
     static {
         ConnectionString connectionString = new ConnectionString("mongodb+srv://"
-                + KeyStore.getProperty("dbuser") + ":"
-                + KeyStore.getProperty("dbpassword") + "@"
-                + KeyStore.getProperty("cluster")
+                + Properities.getProperty("dbuser") + ":"
+                + Properities.getProperty("dbpassword") + "@"
+                + Properities.getProperty("cluster")
                 + ".w1rpn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
         CodecRegistry pojoCodecRegistry = CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build());
         CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
@@ -47,10 +46,10 @@ public class DataBaseWriter implements Runnable{
                 .codecRegistry(codecRegistry)
                 .build();
         MongoClient mongoClient = MongoClients.create(settings);
-        MongoDatabase mongoDatabase = mongoClient.getDatabase(ConfProperities.getProperty("dbname"));
-        collections = List.of(ConfProperities.getProperty("file1dbcollection"),
-                ConfProperities.getProperty("file2dbcollection"),
-                ConfProperities.getProperty("file3dbcollection"))
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(Properities.getProperty("dbname"));
+        collections = List.of(Properities.getProperty("file1dbcollection"),
+                Properities.getProperty("file2dbcollection"),
+                Properities.getProperty("file3dbcollection"))
                 .stream().map(mongoDatabase::getCollection).toList();
     }
 

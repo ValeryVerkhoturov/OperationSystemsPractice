@@ -1,6 +1,6 @@
 package com.company.jsonWork;
 
-import com.company.ConfProperities;
+import com.company.Properities;
 import com.company.processes.DataBaseWriter;
 import com.mongodb.client.MongoCollection;
 import lombok.Getter;
@@ -10,19 +10,19 @@ import java.util.List;
 
 public enum FileType {
     FIRST(First.class,
-            ConfProperities.getProperty("file1path"),
-            ConfProperities.getProperty("localaddress"),
-            Integer.parseInt(ConfProperities.getProperty("file1port")),
+            Properities.getProperty("file1path"),
+            Properities.getProperty("localaddress"),
+            Integer.parseInt(Properities.getProperty("file1port")),
             DataBaseWriter.collections.get(0)),
     SECOND(Second.class,
-            ConfProperities.getProperty("file2path"),
-            ConfProperities.getProperty("localaddress"),
-            Integer.parseInt(ConfProperities.getProperty("file2port")),
+            Properities.getProperty("file2path"),
+            Properities.getProperty("localaddress"),
+            Integer.parseInt(Properities.getProperty("file2port")),
             DataBaseWriter.collections.get(1)),
     THIRD(Third.class,
-            ConfProperities.getProperty("file3path"),
-            ConfProperities.getProperty("localaddress"),
-            Integer.parseInt(ConfProperities.getProperty("file3port")),
+            Properities.getProperty("file3path"),
+            Properities.getProperty("localaddress"),
+            Integer.parseInt(Properities.getProperty("file3port")),
             DataBaseWriter.collections.get(2));
 
     @Getter

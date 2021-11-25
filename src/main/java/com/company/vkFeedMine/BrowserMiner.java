@@ -1,6 +1,6 @@
 package com.company.vkFeedMine;
 
-import com.company.ConfProperities;
+import com.company.Properities;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -17,9 +17,9 @@ public class BrowserMiner {
 
     public BrowserMiner(){
         // Set up browser
-        System.setProperty("webdriver.chrome.driver", ConfProperities.getProperty("chromedriver"));
+        System.setProperty("webdriver.chrome.driver", Properities.getProperty("chromedriver"));
         ChromeOptions chromeOptions = new ChromeOptions();
-        chromeOptions.addArguments(ConfProperities.getProperty("chromeoption"));
+        chromeOptions.addArguments(Properities.getProperty("chromeoption"));
         chromeOptions.setLogLevel(ChromeDriverLogLevel.SEVERE);
         webDriver = new ChromeDriver(chromeOptions);
     }
@@ -35,7 +35,7 @@ public class BrowserMiner {
     }
 
     private void openPage(){
-        webDriver.get(ConfProperities.getProperty("vkfeedpage"));
+        webDriver.get(Properities.getProperty("vkfeedpage"));
     }
 
     public void closeBrowser(){
