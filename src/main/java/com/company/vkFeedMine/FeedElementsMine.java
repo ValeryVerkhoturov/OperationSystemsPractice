@@ -17,10 +17,12 @@ public class FeedElementsMine {
     public List<WebElement> findRows(WebElement column){
         List<WebElement> rows = new ArrayList<>();
         for (WebElement element: column.findElements(By.tagName("div")))
-            if (element.isDisplayed()
-                    && Objects.nonNull(element.getAttribute("class"))
-                    && element.getAttribute("class").toLowerCase().trim().equals("feed_row"))
-                rows.add(element);
+            try {
+                if (element.isDisplayed()
+                        && Objects.nonNull(element.getAttribute("class"))
+                        && element.getAttribute("class").toLowerCase().trim().equals("feed_row"))
+                    rows.add(element);
+            } catch (org.openqa.selenium.StaleElementReferenceException ignore){}
         return rows;
     }
 

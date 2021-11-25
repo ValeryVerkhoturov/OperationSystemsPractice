@@ -21,8 +21,6 @@ public class FileReader implements Runnable{
         DataOutputStream dataOutputStream = new DataOutputStream(bufferedOutputStream);
 
         File file = new File(fileType.getPath());
-        dataOutputStream.writeLong(file.length());
-
 
         synchronizedFileReading(file, bufferedOutputStream);
         bufferedOutputStream.close();
@@ -39,8 +37,7 @@ public class FileReader implements Runnable{
     private void fileReading(File file, BufferedOutputStream bufferedOutputStream) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(file);
         BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
-        int theByte = 0;
-        while ((theByte = bufferedInputStream.read()) != -1) bufferedOutputStream.write(theByte);
+        bufferedOutputStream.write(bufferedInputStream.readAllBytes());
         bufferedInputStream.close();
     }
 

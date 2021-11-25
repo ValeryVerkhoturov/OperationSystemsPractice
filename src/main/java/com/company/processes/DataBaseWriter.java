@@ -60,16 +60,12 @@ public class DataBaseWriter implements Runnable{
         Socket socket = serverSocket.accept();
 
         BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
-        DataInputStream dataInputStream = new DataInputStream(bufferedInputStream);
-
-        long fileLength = dataInputStream.readLong();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        List<FileModel> list = objectMapper.readValue(bufferedInputStream.readNBytes(Math.toIntExact(fileLength)), objectMapper.getTypeFactory().constructCollectionType(List.class, fileType.getCls()));
+        List<FileModel> list = objectMapper.readValue(bufferedInputStream.readAllBytes(), objectMapper.getTypeFactory().constructCollectionType(List.class, fileType.getCls()));
         serverSocket.close();
         socket.close();
         bufferedInputStream.close();
-        dataInputStream.close();
 
         insertInCollection(list);
     }
@@ -82,24 +78,24 @@ public class DataBaseWriter implements Runnable{
         }
     }
 
-    private void insertInCollection(FileType.First pojo){
+    private void insertInCollection(FileType.First object){
         Document document = new Document();
-        document.put("_id", pojo.id());
-        document.put("text", pojo.text());
+        document.put("_id", object.id());
+        document.put("text", object.text());
         FileType.FIRST.getCollection().insertOne(document);
     }
 
-    private void insertInCollection(FileType.Second pojo){
+    private void insertInCollection(FileType.Second object){
         Document document = new Document();
-        document.put("_id", pojo.id());
-        document.put("pictures", pojo.pictures());
+        document.put("_id", object.id());
+        document.put("pictures", object.pictures());
         FileType.SECOND.getCollection().insertOne(document);
     }
 
-    private void insertInCollection(FileType.Third pojo){
+    private void insertInCollection(FileType.Third object){
         Document document = new Document();
-        document.put("_id", pojo.id());
-        document.put("urls", pojo.urls());
+        document.put("_id", object.id());
+        document.put("urls", object.urls());
         FileType.THIRD.getCollection().insertOne(document);
     }
 
