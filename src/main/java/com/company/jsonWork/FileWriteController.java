@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Value;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,28 +23,8 @@ public class FileWriteController implements Runnable{
 
     @Override
     public void run() {
-        switch (fileType){
-            case FIRST:
-                synchronized (FileType.FIRST){
-                    writeInFile();
-                }
-                break;
-            case SECOND:
-                synchronized (FileType.SECOND){
-                    writeInFile();
-                }
-                break;
-            case THIRD:
-                synchronized (FileType.THIRD){
-                    writeInFile();
-                }
-                break;
-            default:
-                try {
-                    throw new FileNotFoundException("Unexpected file");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+        synchronized (fileType){
+            writeInFile();
         }
     }
 

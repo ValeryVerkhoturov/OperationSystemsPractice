@@ -7,7 +7,7 @@ import lombok.Value;
 import java.io.*;
 import java.net.Socket;
 
-/** Process 2 deamon */
+/** Process 2 daemon */
 @Value
 public class FileReader implements Runnable{
 
@@ -17,51 +17,31 @@ public class FileReader implements Runnable{
     public void run() {
         Socket socket = new Socket(fileType.getHostname(), fileType.getPort());
 
-        BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-        DataOutputStream dos = new DataOutputStream(bos);
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
+        DataOutputStream dataOutputStream = new DataOutputStream(bufferedOutputStream);
 
         File file = new File(fileType.getPath());
-        dos.writeLong(file.length());
+        dataOutputStream.writeLong(file.length());
 
 
-        synchronizedFileReading(file, bos);
-        bos.close();
-        dos.close();
+        synchronizedFileReading(file, bufferedOutputStream);
+        bufferedOutputStream.close();
+        dataOutputStream.close();
     }
 
     @SneakyThrows
     private void synchronizedFileReading(File file, BufferedOutputStream bos) {
-        switch (fileType){
-            case FIRST:
-                synchronized (FileType.FIRST){
-                    fileReading(file, bos);
-                }
-                break;
-            case SECOND:
-                synchronized (FileType.SECOND){
-                    fileReading(file, bos);
-                }
-                break;
-            case THIRD:
-                synchronized (FileType.THIRD){
-                    fileReading(file, bos);
-                }
-                break;
-            default:
-                try {
-                    throw new FileNotFoundException("Unexpected file");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+        synchronized (fileType){
+            fileReading(file, bos);
         }
     }
 
-    private void fileReading(File file, BufferedOutputStream bos) throws IOException {
+    private void fileReading(File file, BufferedOutputStream bufferedOutputStream) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(file);
-        BufferedInputStream bis = new BufferedInputStream(fileInputStream);
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
         int theByte = 0;
-        while ((theByte = bis.read()) != -1) bos.write(theByte);
-        bis.close();
+        while ((theByte = bufferedInputStream.read()) != -1) bufferedOutputStream.write(theByte);
+        bufferedInputStream.close();
     }
 
 }

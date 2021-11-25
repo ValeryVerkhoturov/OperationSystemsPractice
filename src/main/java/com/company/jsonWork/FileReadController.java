@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Value;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,28 +26,8 @@ public class FileReadController implements Runnable{
             readFile();
             return;
         }
-        switch (fileType){
-            case FIRST:
-                synchronized (FileType.FIRST){
-                    readFile();
-                }
-                break;
-            case SECOND:
-                synchronized (FileType.SECOND){
-                    readFile();
-                }
-                break;
-            case THIRD:
-                synchronized (FileType.THIRD){
-                    readFile();
-                }
-                break;
-            default:
-                try {
-                    throw new FileNotFoundException("Unexpected file");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+        synchronized (fileType){
+            readFile();
         }
     }
 
