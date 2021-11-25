@@ -15,29 +15,17 @@ import java.util.concurrent.*;
 public class FeedElementsMine {
 
     public List<WebElement> findRows(WebElement column){
-        return column
-                .findElements(By.tagName("div"))
-                .stream()
-                .filter(e -> {
-                    try {
-                        return e.isDisplayed();
-                    } catch (org.openqa.selenium.StaleElementReferenceException exception){
-                        return e.isDisplayed();
-                    }
-                })
-                .filter(e -> Objects.nonNull(e.getAttribute("class")))
-                .filter(e -> {
-                    try {
-                        return e.getAttribute("class").toLowerCase().trim().equals("feed_row");
-                    } catch (org.openqa.selenium.StaleElementReferenceException exception){
-                        return e.getAttribute("class").toLowerCase().trim().equals("feed_row");
-                    }
-                })
-                .toList();
+        List<WebElement> rows = new ArrayList<>();
+        for (WebElement element: column.findElements(By.tagName("div")))
+            if (element.isDisplayed()
+                    && Objects.nonNull(element.getAttribute("class"))
+                    && element.getAttribute("class").toLowerCase().trim().equals("feed_row"))
+                rows.add(element);
+        return rows;
     }
 
     public void mineFeedRowToFiles(WebElement row){
-        saveToFiles(findId(row), findText(row), findUrls(row), findPictureUrl(row));
+        saveToFiles(findId(row), findText(row), findPictureUrl(row), findUrls(row));
     }
 
     private void saveToFiles(String id, String text, List<String> urls, List<String> picturesUrl){
@@ -81,10 +69,11 @@ public class FeedElementsMine {
     }
 
     private List<String> findPictureUrl(WebElement row){
-        row = row.findElement(By.tagName("div")).findElement(By.tagName("div"));
         List<String> picturesUrl = null;
         try {
             picturesUrl = row
+                    .findElement(By.tagName("div"))
+                    .findElement(By.tagName("div"))
                     .findElements(By.tagName("a"))
                     .stream()
                     .filter(e -> Objects.nonNull(e.getAttribute("aria-label")))
