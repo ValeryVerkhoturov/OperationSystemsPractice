@@ -18,13 +18,12 @@ public class FileReader implements Runnable{
         Socket socket = new Socket(fileType.getHostname(), fileType.getPort());
 
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
-        DataOutputStream dataOutputStream = new DataOutputStream(bufferedOutputStream);
 
         File file = new File(fileType.getPath());
 
         synchronizedFileReading(file, bufferedOutputStream);
         bufferedOutputStream.close();
-        dataOutputStream.close();
+        socket.close();
     }
 
     @SneakyThrows

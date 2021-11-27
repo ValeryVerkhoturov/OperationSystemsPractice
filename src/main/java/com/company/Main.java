@@ -24,7 +24,7 @@ public class Main {
         BrowserMiner browserMiner = new BrowserMiner();
         WebElement column = browserMiner.mine();
         FeedElementsMine.findRows(column).forEach(FeedElementsMine::mineFeedRowToFiles);
-        browserMiner.closeBrowser();
+//        browserMiner.closeBrowser();
 
         // Tasks 17 - 23
         new ProcessesRunner().run();
