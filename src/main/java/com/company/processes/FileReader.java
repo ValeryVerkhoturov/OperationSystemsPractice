@@ -1,7 +1,9 @@
 package com.company.processes;
 
 import com.company.jsonWork.FileType;
+import lombok.Cleanup;
 import lombok.SneakyThrows;
+import lombok.Synchronized;
 import lombok.Value;
 
 import java.io.*;
@@ -15,29 +17,24 @@ public class FileReader implements Runnable{
 
     @SneakyThrows
     public void run() {
-        Socket socket = new Socket(fileType.getHostname(), fileType.getPort());
+        @Cleanup Socket socket = new Socket(fileType.getHostname(), fileType.getPort());
 
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
-
+        @Cleanup BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
         File file = new File(fileType.getPath());
 
         synchronizedFileReading(file, bufferedOutputStream);
-        bufferedOutputStream.close();
-        socket.close();
     }
 
     @SneakyThrows
+    @Synchronized("fileType")
     private void synchronizedFileReading(File file, BufferedOutputStream bos) {
-        synchronized (fileType){
-            fileReading(file, bos);
-        }
+        fileReading(file, bos);
     }
 
     private void fileReading(File file, BufferedOutputStream bufferedOutputStream) throws IOException {
-        FileInputStream fileInputStream = new FileInputStream(file);
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+        @Cleanup FileInputStream fileInputStream = new FileInputStream(file);
+        @Cleanup BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
         bufferedOutputStream.write(bufferedInputStream.readAllBytes());
-        bufferedInputStream.close();
     }
 
 }
