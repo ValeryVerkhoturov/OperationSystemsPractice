@@ -1,18 +1,25 @@
 package com.company.vkFeedMine;
 
-import com.company.jsonWork.ConsoleWriter;
 import com.company.jsonWork.FileType;
 import com.company.jsonWork.FileWriteController;
+import com.company.jsonWork.WriteIterations;
 import lombok.experimental.UtilityClass;
 import org.openqa.selenium.By;
 import org.openqa.selenium.InvalidSelectorException;
 import org.openqa.selenium.WebElement;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @UtilityClass
 public class FeedElementsMine {
+
+    private static AtomicInteger iteration = new AtomicInteger(-1);
 
     public List<WebElement> findRows(WebElement column){
         List<WebElement> rows = new ArrayList<>();
@@ -31,12 +38,11 @@ public class FeedElementsMine {
     }
 
     private void saveToFiles(String id, String text, List<String> pictureUrls, List<String> urls){
-        ExecutorService executorService = Executors.newFixedThreadPool(FileType.values().length);
-        executorService.execute(new FileWriteController(new FileType.First(id, text), FileType.FIRST));
-        executorService.execute(new FileWriteController(new FileType.Second(id, pictureUrls), FileType.SECOND));
-        executorService.execute(new FileWriteController(new FileType.Third(id, urls), FileType.THIRD));
-        executorService.shutdown();
-        new Thread(new ConsoleWriter(executorService)).start();
+        HashMap<FileType, FileWriteController> fileWriters = new HashMap<>();
+        fileWriters.put(FileType.FIRST, new FileWriteController(new FileType.First(id, text), FileType.FIRST));
+        fileWriters.put(FileType.SECOND, new FileWriteController(new FileType.Second(id, pictureUrls), FileType.SECOND));
+        fileWriters.put(FileType.THIRD, new FileWriteController(new FileType.Third(id, urls), FileType.THIRD));
+        WriteIterations.addIteration(fileWriters);
     }
 
     private String findId(WebElement row){

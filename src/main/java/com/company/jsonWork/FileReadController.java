@@ -37,7 +37,8 @@ public class FileReadController implements Runnable{
         File file = new File(fileType.getPath());
         try {
             if (file.exists())
-                list = objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, fileType.getCls()));
+                list = objectMapper.readValue(file,
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, fileType.getCls()));
             else
                 list = new ArrayList<>();
             blockingQueue.put(list);

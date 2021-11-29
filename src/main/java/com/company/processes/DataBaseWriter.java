@@ -10,6 +10,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import lombok.Cleanup;
 import lombok.SneakyThrows;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistries;
@@ -21,6 +22,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.stream.Stream;
 
 /** Process 1 */
 public class DataBaseWriter implements Runnable{
@@ -45,25 +47,22 @@ public class DataBaseWriter implements Runnable{
                 .applyConnectionString(connectionString).build();
         MongoClient mongoClient = MongoClients.create(settings);
         database = mongoClient.getDatabase(Properities.getProperty("dbname"));
-        collections = List.of(Properities.getProperty("file1dbcollection"),
+        collections = Stream.of(Properities.getProperty("file1dbcollection"),
                 Properities.getProperty("file2dbcollection"),
-                Properities.getProperty("file3dbcollection"))
-                .stream().map(database::getCollection).toList();
+                Properities.getProperty("file3dbcollection")).
+                map(database::getCollection).toList();
     }
 
     @SneakyThrows
     @Override
     public void run() {
-        ServerSocket serverSocket = new ServerSocket(fileType.getPort(), 1, InetAddress.getByName(fileType.getHostname()));
-        Socket socket = serverSocket.accept();
+        @Cleanup ServerSocket serverSocket = new ServerSocket(fileType.getPort(), 1, InetAddress.getByName(fileType.getHostname()));
+        @Cleanup Socket socket = serverSocket.accept();
 
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
+        @Cleanup BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
 
         ObjectMapper objectMapper = new ObjectMapper();
         List<FileModel> list = objectMapper.readValue(bufferedInputStream.readAllBytes(), objectMapper.getTypeFactory().constructCollectionType(List.class, fileType.getCls()));
-        serverSocket.close();
-        socket.close();
-        bufferedInputStream.close();
 
         insertInCollection(list);
     }
@@ -74,6 +73,7 @@ public class DataBaseWriter implements Runnable{
             case SECOND -> list.stream().map(item -> (FileType.Second) item).forEach(this::insertInCollection);
             case THIRD -> list.stream().map(item -> (FileType.Third) item).forEach(this::insertInCollection);
         }
+        System.out.println("Список занесен в бд");
     }
 
     private void insertInCollection(FileType.First object){

@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.jsonWork.WriteIterations;
 import com.company.processes.DataBaseWriter;
 import com.company.processes.ProcessesRunner;
 import com.company.vkFeedMine.BrowserMiner;
@@ -23,11 +24,13 @@ public class Main {
         // Tasks 11 - 16
         BrowserMiner browserMiner = new BrowserMiner();
         WebElement column = browserMiner.mine();
-        FeedElementsMine.findRows(column).forEach(FeedElementsMine::mineFeedRowToFiles);
+        FeedElementsMine.findRows(column).parallelStream().forEach(FeedElementsMine::mineFeedRowToFiles);
 //        browserMiner.closeBrowser();
 
+        System.out.println("Начинается запись в бд");
         // Tasks 17 - 23
         new ProcessesRunner().run();
+        WriteIterations.executorService.shutdown();
     }
 
     private static void deleteJsonFiles(){
