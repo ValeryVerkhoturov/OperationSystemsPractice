@@ -17,7 +17,6 @@ public class WriteIterations {
 //        thread.setDaemon(true);
 //        return thread;
 //    });
-    public static ExecutorService executorService;
 
     private static AtomicInteger iteration = new AtomicInteger(-1);
 
@@ -30,17 +29,12 @@ public class WriteIterations {
         for (FileType fileType:fileWriterMap.keySet())
             fileWritersMap.get(fileType).offer(fileWriterMap.get(fileType));
 
-        new Thread(WriteIterations::waitLastIterationsAndStart).start();
-    }
-
-    private void waitLastIterationsAndStart(){
-        while (Objects.nonNull(executorService) && !executorService.isTerminated()){}
-        startIterations();
+        new Thread(WriteIterations::startIterations).start();
     }
 
     @SneakyThrows
     private synchronized void startIterations(){
-        executorService = Executors.newFixedThreadPool(FileType.values().length);
+        ExecutorService executorService = Executors.newFixedThreadPool(FileType.values().length);
         while (Arrays.stream(FileType.values()).allMatch(fileType -> fileWritersMap.get(fileType).size() > 0)) {
             switch (iteration.addAndGet(1) % (FileType.values().length + 1)) {
                 case 0 -> {
@@ -76,6 +70,9 @@ public class WriteIterations {
                 default -> throw new Exception("Unexpected Iteration");
             }
         }
+        
         executorService.shutdown();
+        while(!executorService.isTerminated())
+            TimeUnit.MICROSECONDS.sleep(10);
     }
 }

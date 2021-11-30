@@ -87,7 +87,7 @@ public class FeedElementsMine {
                     .filter(e -> Objects.nonNull(e.getAttribute("aria-label")))
                     .filter(e -> e.getAttribute("aria-label").equals("фотография"))
                     .map(e -> e.getAttribute("style"))
-                    .map(s -> s.substring(s.indexOf("url(")+5, s.indexOf("\")") - 1))
+                    .map(s -> s.substring(s.indexOf("url(") + 5, s.indexOf("\")") - 1))
                     .toList();
         }
         catch (InvalidSelectorException ignore){}
