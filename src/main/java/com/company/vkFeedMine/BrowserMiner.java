@@ -18,7 +18,6 @@ public class BrowserMiner {
     public BrowserMiner(){
         // Set up browser
         System.setProperty("webdriver.chrome.driver", Properities.getProperty("chromedriver"));
-        System.setProperty("webdriver.chrome.silentOutput", "true");
         ChromeOptions chromeOptions = new ChromeOptions();
         chromeOptions.addArguments(Properities.getProperty("chromeoption"));
         chromeOptions.setLogLevel(ChromeDriverLogLevel.SEVERE);

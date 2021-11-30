@@ -27,10 +27,8 @@ public class Main {
         FeedElementsMine.findRows(column).parallelStream().forEach(FeedElementsMine::mineFeedRowToFiles);
 //        browserMiner.closeBrowser();
 
-        System.out.println("Начинается запись в бд");
         // Tasks 17 - 23
         new ProcessesRunner().run();
-        WriteIterations.executorService.shutdown();
     }
 
     private static void deleteJsonFiles(){
