@@ -12,12 +12,6 @@ public class WriteIterations {
 
     private static final ConcurrentHashMap<FileType, Queue<FileWriteController>> fileWritersMap = new ConcurrentHashMap<>();
 
-//    public static ExecutorService executorService = Executors.newFixedThreadPool(FileType.values().length, runnable -> {
-//        Thread thread = Executors.defaultThreadFactory().newThread(runnable);
-//        thread.setDaemon(true);
-//        return thread;
-//    });
-
     private static AtomicInteger iteration = new AtomicInteger(-1);
 
     static {
@@ -34,45 +28,56 @@ public class WriteIterations {
 
     @SneakyThrows
     private synchronized void startIterations(){
-        ExecutorService executorService = Executors.newFixedThreadPool(FileType.values().length);
-        while (Arrays.stream(FileType.values()).allMatch(fileType -> fileWritersMap.get(fileType).size() > 0)) {
+        ArrayList<Runnable> controllerList = new ArrayList<>();
+
+        while (Arrays.stream(FileType.values()).anyMatch(fileType -> fileWritersMap.get(fileType).size() > 0)) {
             switch (iteration.addAndGet(1) % (FileType.values().length + 1)) {
                 case 0 -> {
                     System.out.println("Итерация 1I");
-                    executorService.execute(fileWritersMap.get(FileType.FIRST).remove());
-                    executorService.execute(fileWritersMap.get(FileType.SECOND).remove());
-                    executorService.execute(fileWritersMap.get(FileType.THIRD).remove());
+                    Optional.ofNullable(fileWritersMap.get(FileType.FIRST).poll()).ifPresent(controllerList::add);
+                    Optional.ofNullable(fileWritersMap.get(FileType.SECOND).poll()).ifPresent(controllerList::add);
+                    Optional.ofNullable(fileWritersMap.get(FileType.THIRD).poll()).ifPresent(controllerList::add);
                 }
                 case 1 -> {
                     System.out.println("Итерация 2I");
-                    executorService.execute(
+                    controllerList.add(
                             new FileReadController(
                                     FileType.FIRST, new ArrayBlockingQueue<>(1, true), true));
-                    executorService.execute(fileWritersMap.get(FileType.SECOND).remove());
-                    executorService.execute(fileWritersMap.get(FileType.THIRD).remove());
+                    Optional.ofNullable(fileWritersMap.get(FileType.SECOND).poll()).ifPresent(controllerList::add);
+                    Optional.ofNullable(fileWritersMap.get(FileType.THIRD).poll()).ifPresent(controllerList::add);
                 }
                 case 2 -> {
                     System.out.println("Итерация 3I");
-                    executorService.execute(fileWritersMap.get(FileType.FIRST).remove());
-                    executorService.execute(
+                    Optional.ofNullable(fileWritersMap.get(FileType.FIRST).poll()).ifPresent(controllerList::add);
+                    controllerList.add(
                             new FileReadController(
                                     FileType.SECOND, new ArrayBlockingQueue<>(1, true), true));
-                    executorService.execute(fileWritersMap.get(FileType.THIRD).remove());
+                    Optional.ofNullable(fileWritersMap.get(FileType.THIRD).poll()).ifPresent(controllerList::add);
                 }
                 case 3 -> {
                     System.out.println("Итерация 4I");
-                    executorService.execute(fileWritersMap.get(FileType.FIRST).remove());
-                    executorService.execute(fileWritersMap.get(FileType.SECOND).remove());
-                    executorService.execute(
+                    Optional.ofNullable(fileWritersMap.get(FileType.FIRST).poll()).ifPresent(controllerList::add);
+                    Optional.ofNullable(fileWritersMap.get(FileType.SECOND).poll()).ifPresent(controllerList::add);
+                    controllerList.add(
                             new FileReadController(
                                     FileType.THIRD, new ArrayBlockingQueue<>(1, true), true));
                 }
                 default -> throw new Exception("Unexpected Iteration");
             }
         }
-        
-        executorService.shutdown();
-        while(!executorService.isTerminated())
-            TimeUnit.MICROSECONDS.sleep(10);
+
+        startAndJoinThreads(controllerList);
+    }
+
+    private void startAndJoinThreads(List<Runnable> runnableList){
+        List<Thread> threadList = runnableList.stream().map(Thread::new).toList();
+        threadList.forEach(Thread::start);
+        threadList.forEach(thread -> {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
